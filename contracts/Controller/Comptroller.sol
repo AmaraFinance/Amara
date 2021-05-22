@@ -1368,11 +1368,20 @@ contract Comptroller is ComptrollerV4Storage, ComptrollerInterface, ComptrollerE
         return block.number;
     }
 
+   
+    /**
+     * @notice Set the address of the MARA token
+     */
+    function setCompAddress(address compAddress_) public {
+        require(msg.sender == admin, "only admin can set MARA");
+        compAddress = compAddress_;
+    }
+
     /**
      * @notice Return the address of the MARA token
      * @return The address of MARA
      */
     function getCompAddress() public view returns (address) {
-        return 0x8F67854497218043E1f72908FFE38D0Ed7F24721;
+        return compAddress;
     }
 }

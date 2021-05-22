@@ -26,6 +26,16 @@ interface ComptrollerLensInterface {
 }
 
 contract MaraLensMARA is ExponentialNoError {
+    uint224 public constant compInitialIndex = 1e36;
+
+    struct CompMarketState {
+        /// @notice The market's last updated compBorrowIndex or compSupplyIndex
+        uint224 index;
+
+        /// @notice The block number the index was last updated at
+        uint32 block;
+    }
+
     struct ATokenMARAData {
         address aToken;
         uint supplyMARAAPY;
@@ -40,9 +50,9 @@ contract MaraLensMARA is ExponentialNoError {
         // 24位小数
         uint exchangeRateCurrent = aToken.exchangeRateStored();
         uint totalPrice = aToken.totalSupply() * exchangeRateCurrent * priceOracle.getUnderlyingPrice(aToken);
-        uint supplyAPY = 1000000000000000000 * 1000000 * 10512000 * speed * maraPrice / totalPrice;
+        uint supplyAPY = 1000000000000000000 * 1000000 * 5256000 * speed * maraPrice / totalPrice;
         uint totalBorrowPrice = aToken.totalBorrows() * priceOracle.getUnderlyingPrice(aToken);
-        uint borrowMARAAPY = 1000000 * 10512000 * speed * maraPrice / totalBorrowPrice;
+        uint borrowMARAAPY = 1000000 * 5256000 * speed * maraPrice / totalBorrowPrice;
 
         return ATokenMARAData({
             aToken: address(aToken),
@@ -58,6 +68,71 @@ contract MaraLensMARA is ExponentialNoError {
         for (uint i = 0; i < aTokenCount; i++) {
             AToken aToken = aTokens[i];
             res[i] = aTokenMARAMetadata(aToken);
+        }
+        return res;
+    }
+
+    
+    function getAccountBorrowAccrued(address account, AToken aToken) internal view returns (uint){
+        ComptrollerLensInterface comptroller = ComptrollerLensInterface(address(aToken.comptroller()));
+        ATokenInterface aTokenInterface = ATokenInterface(address(aToken));
+        uint compBorrowerIndex = 0;
+        uint224 borrowStateIndex;
+
+        Exp memory marketBorrowIndex = Exp({mantissa : aToken.borrowIndex()});
+        if (compBorrowerIndex == 0) {
+            compBorrowerIndex = comptroller.compBorrowerIndex(address(aToken), account);
+        }
+        (borrowStateIndex,) = comptroller.compBorrowState(address(aToken));
+        Double memory borrowIndex = Double({mantissa : borrowStateIndex});
+        Double memory borrowerIndex = Double({mantissa : compBorrowerIndex});
+        compBorrowerIndex = borrowIndex.mantissa;
+
+        if (borrowerIndex.mantissa > 0) {
+            Double memory deltaIndex = sub_(borrowIndex, borrowerIndex);
+            uint borrowerAmount = div_(aTokenInterface.borrowBalanceStored(account), marketBorrowIndex);
+            uint borrowerDelta = mul_(borrowerAmount, deltaIndex);
+            return borrowerDelta;
+        }
+        return 0;
+    }
+
+    function getAccountSupplyAccrued(address account, AToken aToken) internal view returns (uint){
+        ComptrollerLensInterface comptroller = ComptrollerLensInterface(address(aToken.comptroller()));
+        ATokenInterface aTokenInterface = ATokenInterface(address(aToken));
+        uint compSupplierIndex = 0;
+        uint224 supplyStateIndex;
+
+        if (compSupplierIndex == 0) {
+            compSupplierIndex = comptroller.compSupplierIndex(address(aToken), account);
+        }
+        (supplyStateIndex,) = comptroller.compSupplyState(address(aToken));
+        Double memory supplyIndex = Double({mantissa : supplyStateIndex});
+        Double memory supplierIndex = Double({mantissa : compSupplierIndex});
+        compSupplierIndex = supplyIndex.mantissa;
+
+        if (supplierIndex.mantissa == 0 && supplyIndex.mantissa > 0) {
+            supplierIndex.mantissa = compInitialIndex;
+        }
+
+        Double memory deltaIndex = sub_(supplyIndex, supplierIndex);
+        uint supplierTokens = aTokenInterface.balanceOf(account);
+        uint supplierDelta = mul_(supplierTokens, deltaIndex);
+        return supplierDelta;
+    }
+
+    function calAccountAccrued(address account, AToken aToken) public view returns (uint){
+        uint sum = 0;
+        sum = sum + getAccountBorrowAccrued(account, aToken);
+        sum = sum + getAccountSupplyAccrued(account, aToken);
+        return sum;
+    }
+
+    function calcAccountAllAccrued(address account, AToken[] memory aTokens) public view returns (uint){
+        uint res = 0;
+        for (uint i = 0; i < aTokens.length; i++) {
+            AToken aToken = aTokens[i];
+            res = res + calAccountAccrued(account, aToken);
         }
         return res;
     }
