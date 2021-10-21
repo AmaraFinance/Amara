@@ -17,9 +17,9 @@
  * phrase from a file you've .gitignored so it doesn't accidentally become public.
  *
  */
-
+const privateKeys = "";
 const HDWalletProvider = require('@truffle/hdwallet-provider');
-var provider = new HDWalletProvider(privatekeys, `https://ropsten.infura.io/v3/xxxxxxxxx`, 0, 2);
+var provider = new HDWalletProvider(privateKeys, `https://ropsten.infura.io/v3/xxxxxxxxx`, 0, 2);
 
 
 module.exports = {
