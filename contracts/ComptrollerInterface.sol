@@ -7,17 +7,21 @@ contract ComptrollerInterface {
     /*** Assets You Are In ***/
 
     function enterMarkets(address[] calldata aTokens) external returns (uint[] memory);
+
     function exitMarket(address aToken) external returns (uint);
 
     /*** Policy Hooks ***/
 
     function mintAllowed(address aToken, address minter, uint mintAmount) external returns (uint);
+
     function mintVerify(address aToken, address minter, uint mintAmount, uint mintTokens) external;
 
     function redeemAllowed(address aToken, address redeemer, uint redeemTokens) external returns (uint);
+
     function redeemVerify(address aToken, address redeemer, uint redeemAmount, uint redeemTokens) external;
 
     function borrowAllowed(address aToken, address borrower, uint borrowAmount) external returns (uint);
+
     function borrowVerify(address aToken, address borrower, uint borrowAmount) external;
 
     function repayBorrowAllowed(
@@ -25,6 +29,7 @@ contract ComptrollerInterface {
         address payer,
         address borrower,
         uint repayAmount) external returns (uint);
+
     function repayBorrowVerify(
         address aToken,
         address payer,
@@ -38,6 +43,7 @@ contract ComptrollerInterface {
         address liquidator,
         address borrower,
         uint repayAmount) external returns (uint);
+
     function liquidateBorrowVerify(
         address aTokenBorrowed,
         address aTokenCollateral,
@@ -52,6 +58,7 @@ contract ComptrollerInterface {
         address liquidator,
         address borrower,
         uint seizeTokens) external returns (uint);
+
     function seizeVerify(
         address aTokenCollateral,
         address aTokenBorrowed,
@@ -60,6 +67,7 @@ contract ComptrollerInterface {
         uint seizeTokens) external;
 
     function transferAllowed(address aToken, address src, address dst, uint transferTokens) external returns (uint);
+
     function transferVerify(address aToken, address src, address dst, uint transferTokens) external;
 
     /*** Liquidity/Liquidation Calculations ***/

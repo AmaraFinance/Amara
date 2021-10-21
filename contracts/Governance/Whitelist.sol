@@ -1,8 +1,10 @@
 pragma solidity ^0.5.16;
+
 import "./Ownable.sol";
 
 contract Whitelist is Ownable {
     mapping(address => bool) whitelist;
+
     event AddedToWhitelist(address indexed account);
     event RemovedFromWhitelist(address indexed account);
 
@@ -21,7 +23,7 @@ contract Whitelist is Ownable {
         emit RemovedFromWhitelist(_address);
     }
 
-    function isWhitelisted(address _address) public view returns(bool) {
+    function isWhitelisted(address _address) public view returns (bool) {
         return whitelist[_address];
     }
 }

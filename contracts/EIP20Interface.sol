@@ -6,7 +6,9 @@ pragma solidity ^0.5.16;
  */
 interface EIP20Interface {
     function name() external view returns (string memory);
+
     function symbol() external view returns (string memory);
+
     function decimals() external view returns (uint8);
 
     /**

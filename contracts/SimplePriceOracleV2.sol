@@ -7,7 +7,7 @@ import "./SafeMath.sol";
 contract GetPriceInterface {
 
     function latestAnswer() public view returns (uint256);
-    
+
 }
 
 contract ConsumerV3Interface {
@@ -36,6 +36,7 @@ contract SimplePriceOracle is PriceOracle {
     address admin;
 
     mapping(address => address) aTokenAssets;
+
     event PricePosted(address asset, uint previousPriceMantissa, uint requestedPriceMantissa, uint newPriceMantissa);
 
     constructor(string memory symbol) public {
@@ -50,37 +51,37 @@ contract SimplePriceOracle is PriceOracle {
     //        return prices[address(AErc20(address(aToken)).underlying())];
     //    }
     //}
-    
+
     // binance
 
-//    function getUnderlyingPrice(AToken aToken) public view returns (uint) {
-//        uint price;
-//        if(aTokenAssets[address(aToken)] != address(0)){
-//            address priceAddress = aTokenAssets[address(aToken)];
-//            GetPriceInterface priceContract = GetPriceInterface(priceAddress);
-//            price = priceContract.latestAnswer();
-//            uint latestPrice = price.mul(1000000).div(100000000);
-//            return latestPrice;
-//        }else{
-//            if (compareStrings(aToken.symbol(), baseSymbol)) {
-//                return baseTokenPrice;
-//            } else {
-//                return prices[address(AErc20(address(aToken)).underlying())];
-//            }
-//        }
-//    }
-    
+    //    function getUnderlyingPrice(AToken aToken) public view returns (uint) {
+    //        uint price;
+    //        if(aTokenAssets[address(aToken)] != address(0)){
+    //            address priceAddress = aTokenAssets[address(aToken)];
+    //            GetPriceInterface priceContract = GetPriceInterface(priceAddress);
+    //            price = priceContract.latestAnswer();
+    //            uint latestPrice = price.mul(1000000).div(100000000);
+    //            return latestPrice;
+    //        }else{
+    //            if (compareStrings(aToken.symbol(), baseSymbol)) {
+    //                return baseTokenPrice;
+    //            } else {
+    //                return prices[address(AErc20(address(aToken)).underlying())];
+    //            }
+    //        }
+    //    }
+
     // moonbeam
 
     function getUnderlyingPrice(AToken aToken) public view returns (uint) {
         uint price;
-        if(aTokenAssets[address(aToken)] != address(0)){
+        if (aTokenAssets[address(aToken)] != address(0)) {
             address priceAddress = aTokenAssets[address(aToken)];
             ConsumerV3Interface priceContract = ConsumerV3Interface(priceAddress);
             price = priceContract.getLatestPrice();
             uint latestPrice = price.mul(1000000).div(100000000);
             return latestPrice;
-        }else{
+        } else {
             if (compareStrings(aToken.symbol(), baseSymbol)) {
                 return baseTokenPrice;
             } else {
@@ -127,12 +128,12 @@ contract SimplePriceOracle is PriceOracle {
     }
 
 
-    function addATokenAddress(AToken aToken, address priceAddress) public{
+    function addATokenAddress(AToken aToken, address priceAddress) public {
         require(msg.sender == admin, "only the admin may call add");
         aTokenAssets[address(aToken)] = priceAddress;
     }
 
-    function deleteATokenAddress(AToken aToken) public{
+    function deleteATokenAddress(AToken aToken) public {
         require(msg.sender == admin, "only the admin may call delete");
         aTokenAssets[address(aToken)] = address(0);
     }

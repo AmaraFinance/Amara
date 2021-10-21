@@ -3,7 +3,7 @@ pragma experimental ABIEncoderV2;
 
 import "./Whitelist.sol";
 
-contract Amara is Whitelist{
+contract Amara is Whitelist {
     /// @notice EIP-20 token name for this token
     string public name = "AMARA";
 
@@ -17,13 +17,13 @@ contract Amara is Whitelist{
     uint public totalSupply = 15000000e18;
 
     /// @notice Allowance amounts on behalf of others
-    mapping (address => mapping (address => uint96)) internal allowances;
+    mapping(address => mapping(address => uint96)) internal allowances;
 
     /// @notice Official record of token balances for each account
-    mapping (address => uint96) internal balances;
+    mapping(address => uint96) internal balances;
 
     /// @notice A record of each accounts delegate
-    mapping (address => address) public delegates;
+    mapping(address => address) public delegates;
 
     /// @notice A checkpoint for marking number of votes from a given block
     struct Checkpoint {
@@ -32,10 +32,10 @@ contract Amara is Whitelist{
     }
 
     /// @notice A record of votes checkpoints for each account, by index
-    mapping (address => mapping (uint32 => Checkpoint)) public checkpoints;
+    mapping(address => mapping(uint32 => Checkpoint)) public checkpoints;
 
     /// @notice The number of checkpoints for each account
-    mapping (address => uint32) public numCheckpoints;
+    mapping(address => uint32) public numCheckpoints;
 
     /// @notice The EIP-712 typehash for the contract's domain
     bytes32 public constant DOMAIN_TYPEHASH = keccak256("EIP712Domain(string name,uint256 chainId,address verifyingContract)");
@@ -44,7 +44,7 @@ contract Amara is Whitelist{
     bytes32 public constant DELEGATION_TYPEHASH = keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
 
     /// @notice A record of states for signing / validating signatures
-    mapping (address => uint) public nonces;
+    mapping(address => uint) public nonces;
 
     //islock
     bool private locked = false;
@@ -90,8 +90,8 @@ contract Amara is Whitelist{
      */
     function approve(address spender, uint rawAmount) external returns (bool) {
         uint96 amount;
-        if (rawAmount == uint(-1)) {
-            amount = uint96(-1);
+        if (rawAmount == uint(- 1)) {
+            amount = uint96(- 1);
         } else {
             amount = safe96(rawAmount, "Lend::approve: amount exceeds 96 bits");
         }
@@ -118,7 +118,7 @@ contract Amara is Whitelist{
      * @return Whether or not the transfer succeeded
      */
     function transfer(address dst, uint rawAmount) external returns (bool) {
-        if( locked == true ){
+        if (locked == true) {
             require(isWhitelisted(msg.sender));
         }
         uint96 amount = safe96(rawAmount, "Lend::transfer: amount exceeds 96 bits");
@@ -138,7 +138,7 @@ contract Amara is Whitelist{
         uint96 spenderAllowance = allowances[src][spender];
         uint96 amount = safe96(rawAmount, "Lend::approve: amount exceeds 96 bits");
 
-        if (spender != src && spenderAllowance != uint96(-1)) {
+        if (spender != src && spenderAllowance != uint96(- 1)) {
             uint96 newAllowance = sub96(spenderAllowance, amount, "Lend::transferFrom: transfer amount exceeds spender allowance");
             allowances[src][spender] = newAllowance;
 
@@ -215,7 +215,8 @@ contract Amara is Whitelist{
         uint32 lower = 0;
         uint32 upper = nCheckpoints - 1;
         while (upper > lower) {
-            uint32 center = upper - (upper - lower) / 2; // ceil, avoiding overflow
+            uint32 center = upper - (upper - lower) / 2;
+            // ceil, avoiding overflow
             Checkpoint memory cp = checkpoints[account][center];
             if (cp.fromBlock == blockNumber) {
                 return cp.votes;
@@ -281,12 +282,12 @@ contract Amara is Whitelist{
     }
 
     function safe32(uint n, string memory errorMessage) internal pure returns (uint32) {
-        require(n < 2**32, errorMessage);
+        require(n < 2 ** 32, errorMessage);
         return uint32(n);
     }
 
     function safe96(uint n, string memory errorMessage) internal pure returns (uint96) {
-        require(n < 2**96, errorMessage);
+        require(n < 2 ** 96, errorMessage);
         return uint96(n);
     }
 
@@ -303,15 +304,15 @@ contract Amara is Whitelist{
 
     function getChainId() internal pure returns (uint) {
         uint256 chainId;
-        assembly { chainId := chainid() }
+        assembly {chainId := chainid()}
         return chainId;
     }
 
-    function lock() public onlyOwner{
+    function lock() public onlyOwner {
         locked = true;
     }
 
-    function unlock() public onlyOwner{
+    function unlock() public onlyOwner {
         locked = false;
     }
 }

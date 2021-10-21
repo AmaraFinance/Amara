@@ -6,19 +6,19 @@ contract GovernorAlpha {
     string public constant name = "Amara Governor Alpha";
 
     /// @notice The number of votes in support of a proposal required in order for a quorum to be reached and for a vote to succeed
-    function quorumVotes() public pure returns (uint) { return 400000e18; } // 400,000 = 4% of Comp
+    function quorumVotes() public pure returns (uint) {return 400000e18;} // 400,000 = 4% of Comp
 
     /// @notice The number of votes required in order for a voter to become a proposer
-    function proposalThreshold() public pure returns (uint) { return 100000e18; } // 100,000 = 1% of Comp
+    function proposalThreshold() public pure returns (uint) {return 100000e18;} // 100,000 = 1% of Comp
 
     /// @notice The maximum number of actions that can be included in a proposal
-    function proposalMaxOperations() public pure returns (uint) { return 10; } // 10 actions
+    function proposalMaxOperations() public pure returns (uint) {return 10;} // 10 actions
 
     /// @notice The delay before voting on a proposal may take place, once proposed
-    function votingDelay() public pure returns (uint) { return 1; } // 1 block
+    function votingDelay() public pure returns (uint) {return 1;} // 1 block
 
     /// @notice The duration of voting on a proposal, in blocks
-    function votingPeriod() public pure returns (uint) { return 17280; } // ~3 days in blocks (assuming 15s blocks)
+    function votingPeriod() public pure returns (uint) {return 17280;} // ~3 days in blocks (assuming 15s blocks)
 
     /// @notice The address of the Amara Protocol Timelock
     TimelockInterface public timelock;
@@ -73,7 +73,7 @@ contract GovernorAlpha {
         bool executed;
 
         /// @notice Receipts of ballots for the entire set of voters
-        mapping (address => Receipt) receipts;
+        mapping(address => Receipt) receipts;
     }
 
     /// @notice Ballot receipt record for a voter
@@ -101,10 +101,10 @@ contract GovernorAlpha {
     }
 
     /// @notice The official record of all proposals ever proposed
-    mapping (uint => Proposal) public proposals;
+    mapping(uint => Proposal) public proposals;
 
     /// @notice The latest proposal for each proposer
-    mapping (address => uint) public latestProposalIds;
+    mapping(address => uint) public latestProposalIds;
 
     /// @notice The EIP-712 typehash for the contract's domain
     bytes32 public constant DOMAIN_TYPEHASH = keccak256("EIP712Domain(string name,uint256 chainId,address verifyingContract)");
@@ -141,9 +141,9 @@ contract GovernorAlpha {
 
         uint latestProposalId = latestProposalIds[msg.sender];
         if (latestProposalId != 0) {
-          ProposalState proposersLatestProposalState = state(latestProposalId);
-          require(proposersLatestProposalState != ProposalState.Active, "GovernorAlpha::propose: one live proposal per proposer, found an already active proposal");
-          require(proposersLatestProposalState != ProposalState.Pending, "GovernorAlpha::propose: one live proposal per proposer, found an already pending proposal");
+            ProposalState proposersLatestProposalState = state(latestProposalId);
+            require(proposersLatestProposalState != ProposalState.Active, "GovernorAlpha::propose: one live proposal per proposer, found an already active proposal");
+            require(proposersLatestProposalState != ProposalState.Pending, "GovernorAlpha::propose: one live proposal per proposer, found an already pending proposal");
         }
 
         uint startBlock = add256(block.number, votingDelay());
@@ -151,19 +151,19 @@ contract GovernorAlpha {
 
         proposalCount++;
         Proposal memory newProposal = Proposal({
-            id: proposalCount,
-            proposer: msg.sender,
-            eta: 0,
-            targets: targets,
-            values: values,
-            signatures: signatures,
-            calldatas: calldatas,
-            startBlock: startBlock,
-            endBlock: endBlock,
-            forVotes: 0,
-            againstVotes: 0,
-            canceled: false,
-            executed: false
+        id : proposalCount,
+        proposer : msg.sender,
+        eta : 0,
+        targets : targets,
+        values : values,
+        signatures : signatures,
+        calldatas : calldatas,
+        startBlock : startBlock,
+        endBlock : endBlock,
+        forVotes : 0,
+        againstVotes : 0,
+        canceled : false,
+        executed : false
         });
 
         proposals[newProposal.id] = newProposal;
@@ -311,18 +311,24 @@ contract GovernorAlpha {
 
     function getChainId() internal pure returns (uint) {
         uint chainId;
-        assembly { chainId := chainid() }
+        assembly {chainId := chainid()}
         return chainId;
     }
 }
 
 interface TimelockInterface {
     function delay() external view returns (uint);
+
     function GRACE_PERIOD() external view returns (uint);
+
     function acceptAdmin() external;
+
     function queuedTransactions(bytes32 hash) external view returns (bool);
+
     function queueTransaction(address target, uint value, string calldata signature, bytes calldata data, uint eta) external returns (bytes32);
+
     function cancelTransaction(address target, uint value, string calldata signature, bytes calldata data, uint eta) external;
+
     function executeTransaction(address target, uint value, string calldata signature, bytes calldata data, uint eta) external payable returns (bytes memory);
 }
 

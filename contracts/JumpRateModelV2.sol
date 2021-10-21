@@ -9,9 +9,9 @@ import "./InterestRateModel.sol";
   * @author Arr00
   * @notice Supports only for V2 cTokens
   */
-contract JumpRateModelV2 is InterestRateModel, BaseJumpRateModelV2  {
+contract JumpRateModelV2 is InterestRateModel, BaseJumpRateModelV2 {
 
-	/**
+    /**
      * @notice Calculates the current borrow rate per block
      * @param cash The amount of cash in the market
      * @param borrows The amount of borrows in the market
@@ -22,6 +22,6 @@ contract JumpRateModelV2 is InterestRateModel, BaseJumpRateModelV2  {
         return getBorrowRateInternal(cash, borrows, reserves);
     }
 
-    constructor(uint baseRatePerYear, uint multiplierPerYear, uint jumpMultiplierPerYear, uint kink_, address owner_) 
-    	BaseJumpRateModelV2(baseRatePerYear,multiplierPerYear,jumpMultiplierPerYear,kink_,owner_) public {}
+    constructor(uint baseRatePerYear, uint multiplierPerYear, uint jumpMultiplierPerYear, uint kink_, address owner_)
+    BaseJumpRateModelV2(baseRatePerYear, multiplierPerYear, jumpMultiplierPerYear, kink_, owner_) public {}
 }

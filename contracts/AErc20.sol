@@ -3,7 +3,7 @@ pragma solidity ^0.5.16;
 import "./AToken.sol";
 
 interface CompLike {
-  function delegate(address delegatee) external;
+    function delegate(address delegatee) external;
 }
 
 /**
@@ -23,12 +23,12 @@ contract AErc20 is AToken, AErc20Interface {
      * @param decimals_ ERC-20 decimal precision of this token
      */
     function initialize(address underlying_,
-                        ComptrollerInterface comptroller_,
-                        InterestRateModel interestRateModel_,
-                        uint initialExchangeRateMantissa_,
-                        string memory name_,
-                        string memory symbol_,
-                        uint8 decimals_) public {
+        ComptrollerInterface comptroller_,
+        InterestRateModel interestRateModel_,
+        uint initialExchangeRateMantissa_,
+        string memory name_,
+        string memory symbol_,
+        uint8 decimals_) public {
         // AToken initialize does the bulk of the work
         super.initialize(comptroller_, interestRateModel_, initialExchangeRateMantissa_, name_, symbol_, decimals_);
 
@@ -118,9 +118,9 @@ contract AErc20 is AToken, AErc20Interface {
      * @param token The address of the ERC-20 token to sweep
      */
     function sweepToken(EIP20NonStandardInterface token) external {
-    	require(address(token) != underlying, "AErc20::sweepToken: can not sweep underlying token");
-    	uint256 balance = token.balanceOf(address(this));
-    	token.transfer(admin, balance);
+        require(address(token) != underlying, "AErc20::sweepToken: can not sweep underlying token");
+        uint256 balance = token.balanceOf(address(this));
+        token.transfer(admin, balance);
     }
 
     /**
@@ -161,23 +161,24 @@ contract AErc20 is AToken, AErc20Interface {
         bool success;
         assembly {
             switch returndatasize()
-                case 0 {                       // This is a non-standard ERC-20
-                    success := not(0)          // set success to true
-                }
-                case 32 {                      // This is a compliant ERC-20
-                    returndatacopy(0, 0, 32)
-                    success := mload(0)        // Set `success = returndata` of external call
-                }
-                default {                      // This is an excessively non-compliant ERC-20, revert.
-                    revert(0, 0)
-                }
+            case 0 {// This is a non-standard ERC-20
+                success := not(0)          // set success to true
+            }
+            case 32 {// This is a compliant ERC-20
+                returndatacopy(0, 0, 32)
+                success := mload(0)        // Set `success = returndata` of external call
+            }
+            default {// This is an excessively non-compliant ERC-20, revert.
+                revert(0, 0)
+            }
         }
         require(success, "TOKEN_TRANSFER_IN_FAILED");
 
         // Calculate the amount that was *actually* transferred
         uint balanceAfter = EIP20Interface(underlying).balanceOf(address(this));
         require(balanceAfter >= balanceBefore, "TOKEN_TRANSFER_IN_OVERFLOW");
-        return balanceAfter - balanceBefore;   // underflow already checked above, just subtract
+        return balanceAfter - balanceBefore;
+        // underflow already checked above, just subtract
     }
 
     /**
@@ -196,16 +197,16 @@ contract AErc20 is AToken, AErc20Interface {
         bool success;
         assembly {
             switch returndatasize()
-                case 0 {                      // This is a non-standard ERC-20
-                    success := not(0)          // set success to true
-                }
-                case 32 {                     // This is a compliant ERC-20
-                    returndatacopy(0, 0, 32)
-                    success := mload(0)        // Set `success = returndata` of external call
-                }
-                default {                     // This is an excessively non-compliant ERC-20, revert.
-                    revert(0, 0)
-                }
+            case 0 {// This is a non-standard ERC-20
+                success := not(0)          // set success to true
+            }
+            case 32 {// This is a compliant ERC-20
+                returndatacopy(0, 0, 32)
+                success := mload(0)        // Set `success = returndata` of external call
+            }
+            default {// This is an excessively non-compliant ERC-20, revert.
+                revert(0, 0)
+            }
         }
         require(success, "TOKEN_TRANSFER_OUT_FAILED");
     }

@@ -22,27 +22,27 @@ contract AErc20Delegator is ATokenInterface, AErc20Interface, ADelegatorInterfac
      * @param becomeImplementationData The encoded args for becomeImplementation
      */
     constructor(address underlying_,
-                ComptrollerInterface comptroller_,
-                InterestRateModel interestRateModel_,
-                uint initialExchangeRateMantissa_,
-                string memory name_,
-                string memory symbol_,
-                uint8 decimals_,
-                address payable admin_,
-                address implementation_,
-                bytes memory becomeImplementationData) public {
+        ComptrollerInterface comptroller_,
+        InterestRateModel interestRateModel_,
+        uint initialExchangeRateMantissa_,
+        string memory name_,
+        string memory symbol_,
+        uint8 decimals_,
+        address payable admin_,
+        address implementation_,
+        bytes memory becomeImplementationData) public {
         // Creator of the contract is admin during initialization
         admin = msg.sender;
 
         // First delegate gets to initialize the delegator (i.e. storage contract)
         delegateTo(implementation_, abi.encodeWithSignature("initialize(address,address,address,uint256,string,string,uint8)",
-                                                            underlying_,
-                                                            comptroller_,
-                                                            interestRateModel_,
-                                                            initialExchangeRateMantissa_,
-                                                            name_,
-                                                            symbol_,
-                                                            decimals_));
+            underlying_,
+            comptroller_,
+            interestRateModel_,
+            initialExchangeRateMantissa_,
+            name_,
+            symbol_,
+            decimals_));
 
         // New implementations always get set via the settor (post-initialize)
         _setImplementation(implementation_, false, becomeImplementationData);
@@ -275,8 +275,8 @@ contract AErc20Delegator is ATokenInterface, AErc20Interface, ADelegatorInterfac
         return abi.decode(data, (uint));
     }
 
-   /**
-     * @notice Accrue interest then return the up-to-date exchange rate
+    /**
+      * @notice Accrue interest then return the up-to-date exchange rate
      * @return Calculated exchange rate scaled by 1e18
      */
     function exchangeRateCurrent() public returns (uint) {
@@ -458,19 +458,19 @@ contract AErc20Delegator is ATokenInterface, AErc20Interface, ADelegatorInterfac
      * @notice Delegates execution to an implementation contract
      * @dev It returns to the external caller whatever the implementation returns or forwards reverts
      */
-    function () external payable {
-        require(msg.value == 0,"AErc20Delegator:fallback: cannot send value to fallback");
+    function() external payable {
+        require(msg.value == 0, "AErc20Delegator:fallback: cannot send value to fallback");
 
         // delegate all other functions to current implementation
-        (bool success, ) = implementation.delegatecall(msg.data);
+        (bool success,) = implementation.delegatecall(msg.data);
 
         assembly {
             let free_mem_ptr := mload(0x40)
             returndatacopy(free_mem_ptr, 0, returndatasize)
 
             switch success
-            case 0 { revert(free_mem_ptr, returndatasize) }
-            default { return(free_mem_ptr, returndatasize) }
+            case 0 {revert(free_mem_ptr, returndatasize)}
+            default {return (free_mem_ptr, returndatasize)}
         }
     }
 }
