@@ -5,7 +5,6 @@ import "../AErc20.sol";
 import "../AToken.sol";
 import "../PriceOracle.sol";
 import "../EIP20Interface.sol";
-import "../Governance/Amara.sol";
 import "../SimplePriceOracleV2.sol";
 
 interface ComptrollerLensInterface {
