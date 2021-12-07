@@ -42,13 +42,14 @@ contract SimplePriceOracle is PriceOracle {
     
     function getUnderlyingPrice(AToken aToken) public view returns (uint) {
         uint price;
-        if (aTokenAssets[address(aToken)] != address(0)) {
-            address priceAddress = aTokenAssets[address(aToken)];
-            ConsumerV3Interface priceContract = ConsumerV3Interface(priceAddress);
-            price = priceContract.getLatestPrice();
-            uint latestPrice = price.mul(1000000).div(100000000);
-            return latestPrice;
-        }
+        require(aTokenAssets[address(aToken)] != address(0), "aToken is 0 address");
+
+        address priceAddress = aTokenAssets[address(aToken)];
+        ConsumerV3Interface priceContract = ConsumerV3Interface(priceAddress);
+        price = priceContract.getLatestPrice();
+        uint latestPrice = price.mul(1000000).div(100000000);
+        return latestPrice;
+
     }
 
     function changeAdmin(address newAdmin) public {
