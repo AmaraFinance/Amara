@@ -42,11 +42,11 @@ contract SimplePriceOracle is PriceOracle {
     using SafeMath for uint256;
 
     struct ATokenInfo {
-        address tokenAddress; 
+        address tokenAddress;
         uint256 tokenDecimal;
     }
 
-    address admin;
+    address public admin;
 
     mapping(address => address) aTokenAssets;
     mapping(address => ATokenInfo) public aTokenInfo;
@@ -56,7 +56,7 @@ contract SimplePriceOracle is PriceOracle {
     constructor() public {
         admin = msg.sender;
     }
-    
+
     function getUnderlyingPrice(AToken aToken) public view returns (uint256) {
         uint price;
         require(aTokenAssets[address(aToken)] != address(0), "aToken is 0 address");
