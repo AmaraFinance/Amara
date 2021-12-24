@@ -78,7 +78,7 @@ contract SimplePriceOracle is PriceOracle {
         admin = newAdmin;
     }
 
-    function addATokenAddress(AToken aToken, uint8 decimal, address priceAddress) public {
+    function addATokenAddress(AToken aToken, uint256 decimal, address priceAddress) public {
         require(msg.sender == admin, "only the admin may call add");
         aTokenAssets[address(aToken)] = priceAddress;
         aTokenInfo[address(aToken)].tokenAddress = priceAddress;
