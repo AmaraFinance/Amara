@@ -5,7 +5,7 @@ import "../AErc20.sol";
 import "../AToken.sol";
 import "../PriceOracle.sol";
 import "../EIP20Interface.sol";
-import "../Governance/Amara.sol";
+import "./AmaraInterface.sol";
 
 interface ComptrollerLensInterface {
     function markets(address) external view returns (bool, uint);
@@ -48,7 +48,7 @@ contract AmaraLendLens {
         address underlyingAssetAddress;
         uint underlyingDecimals;
 
-        if (compareStrings(aToken.symbol(), "MARA")) {
+        if (compareStrings(aToken.symbol(), "AMOVR")) {
             underlyingAssetAddress = address(0);
             underlyingDecimals = 18;
         } else {
@@ -99,7 +99,7 @@ contract AmaraLendLens {
         uint tokenBalance;
         uint tokenAllowance;
 
-        if (compareStrings(aToken.symbol(), "MARA")) {
+        if (compareStrings(aToken.symbol(), "AMOVR")) {
             tokenBalance = account.balance;
             tokenAllowance = account.balance;
         } else {
@@ -133,7 +133,7 @@ contract AmaraLendLens {
         uint shortfall;
     }
 
-    function getAccountLimits(ComptrollerLensInterface comptroller, address account) public returns (AccountLimits memory) {
+    function getAccountLimits(ComptrollerLensInterface comptroller, address account) public view returns (AccountLimits memory) {
         (uint errorCode, uint liquidity, uint shortfall) = comptroller.getAccountLiquidity(account);
         require(errorCode == 0);
 
@@ -150,7 +150,7 @@ contract AmaraLendLens {
         address delegate;
     }
 
-    function getCompBalanceMetadata(Amara amara, address account) external view returns (CompBalanceMetadata memory) {
+    function getCompBalanceMetadata(AmaraInterface amara, address account) external view returns (CompBalanceMetadata memory) {
         return CompBalanceMetadata({
         balance : amara.balanceOf(account),
         votes : uint256(amara.getCurrentVotes(account)),
@@ -165,7 +165,7 @@ contract AmaraLendLens {
         uint allocated;
     }
 
-    function getCompBalanceMetadataExt(Amara amara, ComptrollerLensInterface comptroller, address account) external returns (CompBalanceMetadataExt memory) {
+    function getCompBalanceMetadataExt(AmaraInterface amara, ComptrollerLensInterface comptroller, address account) external returns (CompBalanceMetadataExt memory) {
         uint balance = amara.balanceOf(account);
         comptroller.claimComp(account);
         uint newBalance = amara.balanceOf(account);
@@ -186,7 +186,7 @@ contract AmaraLendLens {
         uint votes;
     }
 
-    function getCompVotes(Amara amara, address account, uint32[] calldata blockNumbers) external view returns (CompVotes[] memory) {
+    function getCompVotes(AmaraInterface amara, address account, uint32[] calldata blockNumbers) external view returns (CompVotes[] memory) {
         CompVotes[] memory res = new CompVotes[](blockNumbers.length);
         for (uint i = 0; i < blockNumbers.length; i++) {
             res[i] = CompVotes({
