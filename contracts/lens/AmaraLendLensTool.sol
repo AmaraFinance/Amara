@@ -36,6 +36,7 @@ interface ComptrollerLensInterface {
 
 contract AmaraLendLensTool is ExponentialNoError {
     uint224 public constant compInitialIndex = 1e36;
+    uint256 blocksPerYear = 2628000;
 
     struct ATokenAmaraData {
         address aToken;
@@ -55,13 +56,14 @@ contract AmaraLendLensTool is ExponentialNoError {
         ComptrollerLensInterface comptroller = ComptrollerLensInterface(address(aToken.comptroller()));
         uint speed = comptroller.compSpeeds(address(aToken));
         SimplePriceOracle priceOracle = SimplePriceOracle(address(comptroller.oracle()));
-        uint amaraPrice = priceOracle.assetPrices(comptroller.getCompAddress());
+        uint amaraPrice = priceOracle.getUnderlyingPrice(comptroller.getCompAddress());
+
         // 24位小数
         uint exchangeRateCurrent = aToken.exchangeRateStored();
         uint totalPrice = aToken.totalSupply() * exchangeRateCurrent * priceOracle.getUnderlyingPrice(aToken);
-        uint supplyAPY = 1000000000000000000 * 1000000 * 2628000 * speed * amaraPrice / totalPrice;
+        uint supplyAPY = 1000000000000000000 * blocksPerYear * speed * amaraPrice / totalPrice;
         uint totalBorrowPrice = aToken.totalBorrows() * priceOracle.getUnderlyingPrice(aToken);
-        uint borrowAmaraAPY = 1000000 * 2628000 * speed * amaraPrice / totalBorrowPrice;
+        uint borrowAmaraAPY = 1000000 * blocksPerYear * speed * amaraPrice / totalBorrowPrice;
 
         return ATokenAmaraData({
         aToken : address(aToken),
